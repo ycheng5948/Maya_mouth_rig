@@ -248,6 +248,11 @@ for i in R_crn_top_GRPs:
 for i in R_crn_bot_GRPs:
     cmds.parentConstraint('B_CTRL', 'R_CTRL', i, mo=1)
 ###################################################################
+# setting the constraint type on the right side to no_flip
+R_constraints = cmds.ls('R_*_lip_crn_*_GRP_parentConstraint1')
+for i in R_constraints:
+    cmds.setAttr('{0}.interpType'.format(i), 0)
+###################################################################
 # modify the constraints' weights
 weights_0 = [0.9, 0.7, 0.2]  # For T/B_local_DRVW0
 weights_1 = [0.1, 0.3, 0.8]  # For L/R_local_DRVW1
