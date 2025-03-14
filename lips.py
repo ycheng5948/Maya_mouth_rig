@@ -441,74 +441,83 @@ for i in twk_CTRLs:
 ###################################################################
 # manually adjusting the lip_twk_CTRLs to desired look
 ###################################################################
-ctrl_GRPs = cmds.ls('*_*_lip_crn_*_GRP')
+# Mar 14th major update
+# need optimization and adjustments
+# instead of creating empty transform nodes, use the existing CTRLs to create the DRVs
+# duplicating the original mst_CTRLs group so that the DRVs can inherit the same offset
+cmds.duplicate('lip_mst_GRP', n='lip_mst_drv_offset_GRP', rc=1)
+# delete the crn_JNT_GRP
+cmds.delete('lip_crn_JNT_GRP1')
 
-# exclude the right side cause it will be copied and put in R_mouth_offset_GRP later
-ctrl_GRPs = cmds.ls('L_*_lip_crn_*_GRP') + cmds.ls('M_*_lip_crn_*_GRP') +[
-    'L_00_lip_crn_GRP', 'L_GRP', 'T_GRP', 'B_GRP', 'lip_mst_GRP'
-]
+# deleting the CTRLs' shape and rename
+for i in cmds.listRelatives('lip_mst_drv_offset_GRP', ad=1):
+    if i.split('_')[-1]=='CTRLShape1':
+        cmds.delete(i)
+    if i.split('_')[-1]=='parentConstraint2':
+        cmds.delete(i)
+    if i=='R_CTRL1':
+        local_drv = cmds.rename(i, 'R_local_DRV')
+    if i.split('crn')[-1]=='_top_CTRL1':
+        cmds.rename(i, i.replace('_top_CTRL1', '_top_local_DRV'))
+    if i.split('crn')[-1]=='_bot_CTRL1':
+        cmds.rename(i, i.replace('_bot_CTRL1', '_bot_local_DRV'))
+    if i.split('crn')[-1]=='_top_DRV1':
+        cmds.rename(i, i.replace('_top_DRV1', '_top_local_SDK_DRV'))
+    if i.split('crn')[-1]=='_bot_DRV1':
+        cmds.rename(i, i.replace('_bot_DRV1', '_bot_local_SDK_DRV'))
+    if i.split('crn')[-1]=='_CTRL1':
+        cmds.rename(i, i.replace('CTRL1', 'local_DRV'))
+    if i.split('crn')[-1]=='_DRV1':
+        cmds.rename(i, i.replace('DRV1', 'local_SDK_DRV'))
+    if i.split('_')[-1]=='GRP1':
+        cmds.rename(i, i.replace('GRP1', 'local_DRV_GRP'))
+    if i.split('_')[-1]=='CTRL1':
+        cmds.rename(i, i.replace('_CTRL1', '_local_DRV'))
 
-for x in ctrl_GRPs:
-    local_grp = cmds.createNode("transform", n=x.replace("_GRP", "_local_DRV_GRP"))
+# connecting the attributes
+CTRLs = cmds.ls('*_*_lip_crn_*_CTRL')
+for i in CTRLs:
+    cmds.connectAttr("{0}.t".format(i), "{0}.t".format(i.replace('_CTRL','_local_DRV')))
+    cmds.connectAttr("{0}.r".format(i), "{0}.r".format(i.replace('_CTRL','_local_DRV')))
+    cmds.connectAttr("{0}.s".format(i), "{0}.s".format(i.replace('_CTRL','_local_DRV')))
+# specify 'top' and 'bot' so it doesn't get confused with the newly created local drivers
+DRVs = cmds.ls('*_*_lip_crn_bot_DRV')
+for i in DRVs:
+    cmds.connectAttr("{0}.t".format(i), "{0}.t".format(i.replace('_DRV','_local_SDK_DRV')))
+    cmds.connectAttr("{0}.r".format(i), "{0}.r".format(i.replace('_DRV','_local_SDK_DRV')))
+    cmds.connectAttr("{0}.s".format(i), "{0}.s".format(i.replace('_DRV','_local_SDK_DRV')))
 
-    drv = cmds.listRelatives(x, c=1)[0]
-    if drv.split('_')[-1]=='DRV':
-        local_drv = cmds.createNode("transform", n=drv.replace("_DRV", "_local_SDK_DRV"))
+DRVs = cmds.ls('*_*_lip_crn_top_DRV')
+for i in DRVs:
+    cmds.connectAttr("{0}.t".format(i), "{0}.t".format(i.replace('_DRV','_local_SDK_DRV')))
+    cmds.connectAttr("{0}.r".format(i), "{0}.r".format(i.replace('_DRV','_local_SDK_DRV')))
+    cmds.connectAttr("{0}.s".format(i), "{0}.s".format(i.replace('_DRV','_local_SDK_DRV')))
 
-        cmds.connectAttr("{0}.t".format(drv), "{0}.t".format(local_drv))
-        cmds.connectAttr("{0}.r".format(drv), "{0}.r".format(local_drv))
-        cmds.connectAttr("{0}.s".format(drv), "{0}.s".format(local_drv))
+# connect the LRTB_CTRLs' and lip_mst_CTRL attributes separately
+# need optimixation
+cmds.connectAttr("{0}.t".format('R_CTRL'), "{0}.t".format('R_local_DRV'))
+cmds.connectAttr("{0}.r".format('R_CTRL'), "{0}.r".format('R_local_DRV'))
+cmds.connectAttr("{0}.s".format('R_CTRL'), "{0}.s".format('R_local_DRV'))
 
-        ctrl = cmds.listRelatives(x, c=1)[0]
-        local_ctrl = cmds.createNode("transform", n=ctrl.replace("_CTRL", "_local_DRV"))
+cmds.connectAttr("{0}.t".format('T_CTRL'), "{0}.t".format('T_local_DRV'))
+cmds.connectAttr("{0}.r".format('T_CTRL'), "{0}.r".format('T_local_DRV'))
+cmds.connectAttr("{0}.s".format('T_CTRL'), "{0}.s".format('T_local_DRV'))
 
-        cmds.connectAttr("{0}.t".format(ctrl), "{0}.t".format(local_ctrl))
-        cmds.connectAttr("{0}.r".format(ctrl), "{0}.r".format(local_ctrl))
-        cmds.connectAttr("{0}.s".format(ctrl), "{0}.s".format(local_ctrl))
-        
-        cmds.parent(local_ctrl, local_drv)
-        cmds.parent(local_drv, local_grp)
+cmds.connectAttr("{0}.t".format('B_CTRL'), "{0}.t".format('B_local_DRV'))
+cmds.connectAttr("{0}.r".format('B_CTRL'), "{0}.r".format('B_local_DRV'))
+cmds.connectAttr("{0}.s".format('B_CTRL'), "{0}.s".format('B_local_DRV'))
 
-        cmds.delete(cmds.parentConstraint(x ,local_grp))
-    else:
-        ctrl = cmds.listRelatives(x, c=1)[0]
-        local_ctrl = cmds.createNode("transform", n=ctrl.replace("_CTRL", "_local_DRV"))
+cmds.connectAttr("{0}.t".format('L_CTRL'), "{0}.t".format('L_local_DRV'))
+cmds.connectAttr("{0}.r".format('L_CTRL'), "{0}.r".format('L_local_DRV'))
+cmds.connectAttr("{0}.s".format('L_CTRL'), "{0}.s".format('L_local_DRV'))
 
-        cmds.connectAttr("{0}.t".format(ctrl), "{0}.t".format(local_ctrl))
-        cmds.connectAttr("{0}.r".format(ctrl), "{0}.r".format(local_ctrl))
-        cmds.connectAttr("{0}.s".format(ctrl), "{0}.s".format(local_ctrl))
-        
-        cmds.parent(local_ctrl, local_grp)
+cmds.connectAttr("{0}.t".format('L_CTRL'), "{0}.t".format('L_local_DRV'))
+cmds.connectAttr("{0}.r".format('L_CTRL'), "{0}.r".format('L_local_DRV'))
+cmds.connectAttr("{0}.s".format('L_CTRL'), "{0}.s".format('L_local_DRV'))
 
-        cmds.delete(cmds.parentConstraint(x ,local_grp))
-####################################################################
-# tidy up scene
-drv_GRPs = cmds.ls('*_DRV_GRP')
-drv_GRPs.remove('lip_mst_local_DRV_GRP')
-cmds.parent(drv_GRPs, 'lip_mst_local_DRV')
-
-L_drv_GRP = cmds.group(em=1, name='L_lip_local_drv_GRP')
-
-# create R_lip_local_drv_offset_GRP
-cmds.group(em=1, name='R_lip_local_drv_offset_GRP')
-cmds.setAttr('R_lip_local_drv_offset_GRP.scaleX', -1)
-
-# duplicate the left side and move to R_lip_local_drv_offset_GRP
-left_drvs = cmds.ls('L_*_lip_crn_*_local_DRV_GRP') + ['L_00_lip_crn_local_DRV_GRP', 'L_local_DRV_GRP']
-cmds.parent(left_drvs, 'L_lip_local_drv_GRP')
-
-cmds.duplicate('L_lip_local_drv_GRP', rc=1, name='R_lip_local_drv_GRP')
-for i in cmds.listRelatives('R_lip_local_drv_GRP', ad=1):
-    cmds.rename(i, i[:-1].replace('L_', 'R_'))
-cmds.parent('R_lip_local_drv_GRP', 'R_lip_local_drv_offset_GRP')
-cmds.setAttr('R_lip_local_drv_GRP.rotateY', 0)
-cmds.setAttr('R_lip_local_drv_GRP.scaleX', 1)
-cmds.setAttr('R_lip_local_drv_GRP.scaleZ', 1)
-
-# tidy up left and right drv_GRPs in scene
-cmds.parent('L_lip_local_drv_GRP', 'lip_mst_local_DRV')
-cmds.parent('R_lip_local_drv_offset_GRP', 'lip_mst_local_DRV')
-
+cmds.connectAttr("{0}.t".format('lip_mst_CTRL'), "{0}.t".format('lip_mst_local_DRV'))
+cmds.connectAttr("{0}.r".format('lip_mst_CTRL'), "{0}.r".format('lip_mst_local_DRV'))
+cmds.connectAttr("{0}.s".format('lip_mst_CTRL'), "{0}.s".format('lip_mst_local_DRV'))
 ####################################################################
 # delete the constrainsts on the crn_JNTs
 crn_JNT_PC = cmds.ls('*_*_lip_crn_*_JNT_parentConstraint1')
