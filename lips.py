@@ -259,10 +259,10 @@ for side in sides:
         for pos in ["top", "bot"]:
             base_name = "{0}_{1}_lip_crn_{2}_GRP_parentConstraint1".format(side, idx, pos)
             
-            weight_0_attr = "T_local_DRVW0" if pos == "top" else "B_local_DRVW0"
+            weight_0_attr = "T_CTRLW0" if pos == "top" else "B_CTRLW0"
             cmds.setAttr("{0}.{1}".format(base_name, weight_0_attr), weight_0)
 
-            weight_1_attr = "{0}_local_DRVW1".format(side)
+            weight_1_attr = "{0}_CTRL1".format(side)
             cmds.setAttr("{0}.{1}".format(base_name, weight_1_attr), weight_1)
 ###################################################################
 # create lips_mst_JNT and CTRL
