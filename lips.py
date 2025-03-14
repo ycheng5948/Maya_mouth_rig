@@ -455,8 +455,6 @@ for i in cmds.listRelatives('lip_mst_drv_offset_GRP', ad=1):
         cmds.delete(i)
     if i.split('_')[-1]=='parentConstraint2':
         cmds.delete(i)
-    if i=='R_CTRL1':
-        local_drv = cmds.rename(i, 'R_local_DRV')
     if i.split('crn')[-1]=='_top_CTRL1':
         cmds.rename(i, i.replace('_top_CTRL1', '_top_local_DRV'))
     if i.split('crn')[-1]=='_bot_CTRL1':
