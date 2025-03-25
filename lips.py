@@ -567,9 +567,17 @@ for side in sides:
             weight_1_attr = "{0}_local_DRVW1".format(side)
             cmds.setAttr("{0}.{1}".format(base_name, weight_1_attr), weight_1)
 ###################################################################
-# parentConstraint the L and R local_DRVs #to_be_updated
-# 'L_00_lip_crn_local_DRV' to 'L_00_lip_crn_top_local_DRV' and 'L_00_lip_crn_bot_local_DRV'
-# 'R_00_lip_crn_local_DRV' to 'R_00_lip_crn_top_local_DRV' and 'R_00_lip_crn_bot_local_DRV'
+# delete the _00_lip_crn_local_DRV_GRP constraints and
+# create parent constraints from left and right _00_lip_crn_local_DRV to _00_lip_crn_top_local_DRV_GRP
+
+crn_GRP_PC = cmds.ls('*_00_lip_crn_*_local_DRV_GRP_parentConstraint1')
+cmds.delete(i for i in crn_GRP_PC)
+
+cmds.parentConstraint('L_00_lip_crn_local_DRV', 'L_00_lip_crn_top_local_DRV_GRP', mo=1)
+cmds.parentConstraint('L_00_lip_crn_local_DRV', 'L_00_lip_crn_bot_local_DRV_GRP', mo=1)
+cmds.parentConstraint('R_00_lip_crn_local_DRV', 'R_00_lip_crn_top_local_DRV_GRP', mo=1)
+cmds.parentConstraint('R_00_lip_crn_local_DRV', 'R_00_lip_crn_bot_local_DRV_GRP', mo=1)
+
 ###################################################################
 # create offset_GRP/DRV for jaw and parent them
 cmds.group(em=1, n='jaw_offset_top_GRP')
