@@ -514,10 +514,6 @@ cmds.connectAttr("{0}.t".format('L_CTRL'), "{0}.t".format('L_local_DRV'))
 cmds.connectAttr("{0}.r".format('L_CTRL'), "{0}.r".format('L_local_DRV'))
 cmds.connectAttr("{0}.s".format('L_CTRL'), "{0}.s".format('L_local_DRV'))
 
-cmds.connectAttr("{0}.t".format('L_CTRL'), "{0}.t".format('L_local_DRV'))
-cmds.connectAttr("{0}.r".format('L_CTRL'), "{0}.r".format('L_local_DRV'))
-cmds.connectAttr("{0}.s".format('L_CTRL'), "{0}.s".format('L_local_DRV'))
-
 cmds.connectAttr("{0}.t".format('lip_mst_CTRL'), "{0}.t".format('lip_mst_local_DRV'))
 cmds.connectAttr("{0}.r".format('lip_mst_CTRL'), "{0}.r".format('lip_mst_local_DRV'))
 cmds.connectAttr("{0}.s".format('lip_mst_CTRL'), "{0}.s".format('lip_mst_local_DRV'))
