@@ -613,6 +613,10 @@ cmds.parent('lip_mst_JNT', 'face_bot_JNT')
 # parent the lip_mst_JNT to lip_mst_JNT
 cmds.parent('lip_mst_JNT', 'lip_mst_JNT')
 
+# setting up constraints from the lip_mst_CTRL to lip_mst_JNT
+cmds.parentConstraint('lip_mst_CTRL', 'lip_mst_JNT')
+cmds.scaleConstraint('lip_mst_CTRL', 'lip_mst_JNT')
+
 ####################################################################
 # setting up lip joints' labels for weight painting mirror
 R_lip = cmds.ls('R_*_lip_*_JNT')
